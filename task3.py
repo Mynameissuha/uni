@@ -7,8 +7,13 @@ w1 = WIDTH - w0
 AXIS_LINE_POS = w0 * 0.5 
 TICK_INTERVAL = 50 
 
+
 #object parameters
 RADIUS_FOR_TEST = 8
+
+#animation parameters
+MOVE_STEP = 5
+ANIMATION_DELAY = 90
 
 root = tk.Tk()
 root.geometry('600x600')
@@ -68,6 +73,14 @@ def update_w0():
 
     draw_axes()
 
+
+def animate_ball_simple(cnv,ball):
+    coords = cnv.coords(ball)
+    x1, y1, x2, y2 = coords
+    cnv.move(ball, MOVE_STEP, 0)
+    cnv.after(ANIMATION_DELAY,animate_ball_simple,cnv,ball)
+
+
 frame = tk.Frame(master=root)
 cnv_0_0 = tk.Canvas(master=frame, width=w0, height=w0, bg="ivory", highlightthickness=1) 
 cnv_0_1 = tk.Canvas(master=frame, width=w1, height=w0, bg="ivory", highlightthickness=1)
@@ -97,4 +110,5 @@ draw_axes()
 
 ball= cnv_main.create_oval(50-RADIUS_FOR_TEST,450-RADIUS_FOR_TEST,50+RADIUS_FOR_TEST,450+RADIUS_FOR_TEST,fill="black")
 
+animate_ball_simple(cnv_main,ball)
 root.mainloop()
