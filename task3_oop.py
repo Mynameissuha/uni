@@ -9,14 +9,15 @@ W1 = WIDTH - W0
 AXIS_LINE_POS = W0 * 0.5 
 TICK_INTERVAL = 50 
 
+
 # simulation parameters
 G = 9.81              #ускорение свободного падения
 RHO_MEDIUM_1 = 1.225  # density of env 1 - air
 RHO_MEDIUM_2 = 1000.0 #density of env 2 - water
 BOUNDARY_Y = 300      # y coord of boundary
-
+Y_START = 1
 FRAME_RATE_MS = 20   # in ms
-SCALE_FACTOR = 1 # for more realistic animation 
+SCALE_FACTOR = 10 # for more realistic animation 
 
 class Particle:
     """Class describing one particle"""
@@ -76,7 +77,7 @@ class Particle:
         K = 0.5 * rho_medium * self.Cd * self.A
         
         # Fd = - K * V^2
-        if v_mag > 1e-6: # Избегаем деления на ноль / нестабильности
+        if v_mag > 1e-6: 
             F_d_x = -K * v_mag * self.v_x
             F_d_y = -K * v_mag * self.v_y
         else:
@@ -100,12 +101,7 @@ class Particle:
 
     def draw(self):
         """updates the coords on main canvas"""
-        self.canvas.coords(
-            self.canvas_id, 
-            self.x - self.r, self.y - self.r, 
-            self.x + self.r, self.y + self.r
-        )
-        
+        self.canvas.coords(self.canvas_id, self.x - self.r, self.y - self.r, self.x + self.r, self.y + self.r)
         if self.y > self.canvas.winfo_height() - self.r:
              self.y = self.canvas.winfo_height() - self.r
              self.v_y *= -0.5 
@@ -132,13 +128,14 @@ class Simulation:
         self._init_layout()
         self._draw_axes()
         self._draw_boundary()
+        
 
         self.last_time = time.time()
         
         self.particles = [
-            Particle(self.cnv_main, 100, 50, 30, part_dens=2700, Cd=0.47, color="blue"), 
-            Particle(self.cnv_main, 250, 50, 8, part_dens=2700, Cd=0.47, color="red"),
-            Particle(self.cnv_main, 400, 50, 15, part_dens=2700, Cd=0.47, color="green") 
+            Particle(self.cnv_main, 100, Y_START, 30, part_dens=2700, Cd=0.47, color="blue"), 
+            Particle(self.cnv_main, 250, Y_START, 8, part_dens=2700, Cd=0.47, color="red"),
+            Particle(self.cnv_main, 400, Y_START, 15, part_dens=2700, Cd=0.47, color="green") 
         ]
         
         # Запуск анимации
@@ -181,10 +178,19 @@ class Simulation:
             )
         
     def _draw_boundary(self):
-        self.cnv_main.create_line(
-            0, BOUNDARY_Y, W1, BOUNDARY_Y, 
-            fill="blue", width=2, dash=(10, 5), tags="boundary"
+        self.cnv_main.create_rectangle(
+            0, 
+            BOUNDARY_Y, 
+            W1, 
+            W1, 
+            fill="lightblue",     # Цвет заливки
+            outline="",           # Убрать рамку
+            tags="background_sky" # Тег для управления фоном
         )
+        # self.cnv_main.create_line(
+        #     0, BOUNDARY_Y, W1, BOUNDARY_Y, 
+        #     fill="blue", width=2, dash=(10, 5), tags="boundary"
+        # )
         self.cnv_main.create_text(10, BOUNDARY_Y + 15, text="Вода", anchor="w", fill="black")
         self.cnv_main.create_text(10, BOUNDARY_Y - 15, text="Воздух", anchor="w", fill="black")
 
@@ -211,12 +217,13 @@ class Simulation:
             
             # traj draw
             points = particle.get_trajectory_points()
+            #print(f"initial points:[{points}]")
             if len(points) >= 4:
                  self.cnv_main.create_line(
                     points,
                     smooth=True,
                     fill=self.cnv_main.itemcget(particle.canvas_id, "fill"), 
-                    width=3,
+                    width=2,
                     tags="trajectory"
                 )
 
