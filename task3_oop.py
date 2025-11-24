@@ -133,10 +133,11 @@ class Simulation:
         self.last_time = time.time()
         
         self.particles = [
-            Particle(self.cnv_main, 100, Y_START, 30, part_dens=2700, Cd=0.47, color="blue"), 
-            Particle(self.cnv_main, 250, Y_START, 8, part_dens=2700, Cd=0.47, color="red"),
-            Particle(self.cnv_main, 400, Y_START, 15, part_dens=2700, Cd=0.47, color="green") 
-        ]
+
+            Particle(self.cnv_main, 100, Y_START, 30, part_dens=2700, Cd=0.47, color="#9aba91"), 
+            Particle(self.cnv_main, 250, Y_START, 8, part_dens=2700, Cd=0.47, color="#e88330"),
+            Particle(self.cnv_main, 400, Y_START, 15, part_dens=2700, Cd=0.47, color="#ad1a4d") ]
+
         
         # Запуск анимации
         self.animate()
