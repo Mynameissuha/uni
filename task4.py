@@ -26,15 +26,7 @@ class Game():
     def __init__(self, root):
         self.root = root
         
-        # 1. Setup the main frame for the board
-        self.board = tk.Frame(
-            master=self.root, 
-            width=W0, 
-            height=W0, 
-            bg='#bbada0',
-            padx=5, 
-            pady=5
-        )
+        self.board = tk.Frame(master=self.root, width=W0, height=W0, bg='#bbada0',padx=5,  pady=5)
         
         self.mirror_grid = np.zeros((ITEM_IN_ROW, ITEM_IN_ROW), dtype=int)
         print("Initial Mirror Grid:\n", self.mirror_grid)
@@ -46,14 +38,10 @@ class Game():
         self.root.bind('<Down>', self.handle_event)
         self.root.bind('<Escape>', lambda event: root.quit())
 
-        # Place the board frame in the root window
         self.board.grid(row=0, column=0)
         
-        # --- FIX: CALL THE SETUP FUNCTION HERE ---
-        # This function creates and grids the actual tiles, making them visible.
         self.setup_init_tiles() 
         
-        # Start the game by adding two initial tiles
         self.add_new_tile()
         self.add_new_tile()
         self.update_ui()
@@ -87,7 +75,9 @@ class Game():
         return board_copy
 
     def handle_event(self, event):
+        
         key_symbol = event.keysym
+        
         
         if key_symbol in ['Left', 'Right', 'Up', 'Down']:
             
@@ -130,36 +120,19 @@ class Game():
 
     def setup_init_tiles(self):
         print("Setting up initial tiles (Canvases and Labels)")
-        self.tiles = [] # This will hold the Canvas widgets
-        self.tile_labels = [] # This will hold the Label widgets used for numbers
-        tile_size = W0 / ITEM_IN_ROW - 10 # Adjusted size for padding/spacing
+        self.tiles = [] #
+        self.tile_labels = [] 
+        tile_size = W0 / ITEM_IN_ROW - 10 
 
         for i in range(ITEM_IN_ROW):
             row_tiles = []
             row_labels = []
             for j in range(ITEM_IN_ROW):
-                # Frame to hold the tile background and padding
-                tile_frame = tk.Frame(
-                    master=self.board,
-                    width=tile_size,
-                    height=tile_size,
-                    bg=TILE_COLORS[0][0] # Background color for 0 tile (ivory)
-                )
                 
-                # Label to display the number, centered inside the frame
-                tile_label = tk.Label(
-                    master=tile_frame,
-                    text='',
-                    font=('Helvetica', 24, 'bold'),
-                    width=4,
-                    height=2,
-                    bg=TILE_COLORS[0][0] # Match the frame background
-                )
-
-                # Use grid to place the tile frame in the main board
-                # padx/pady adds spacing between tiles
+                tile_frame = tk.Frame(master=self.board,width=tile_size,height=tile_size,bg=TILE_COLORS[0][0] )
+                tile_label = tk.Label(master=tile_frame,text='',font=('Helvetica', 24, 'bold'), width=4,height=2,bg=TILE_COLORS[0][0] )
                 tile_frame.grid(row=i, column=j, padx=5, pady=5)
-                # Pack the label into its frame to center it
+                
                 tile_label.pack(expand=True, fill='both')
 
                 row_tiles.append(tile_frame)
@@ -178,23 +151,52 @@ class Game():
                     free_tiles.append((r, c))
         return free_tiles
 
+    def check_for_the_end(self):
+        print('Checking for the end')
+        init_board = self.mirror_grid.copy()
+        #left
+        left_board = self.left_move(init_board)
+        print(f"IF MOVED LEFT")
+                
+        #right
+        reversed_board = init_board.copy()
+        reversed_board = reversed_board[:,::-1]
+        board = self.left_move(reversed_board)
+        print(f"IF MOVED RIGHT!:\n{board[:,::-1]}")
+        right_board = board[:,::-1]
+
+        #up
+                
+        transposed_board = init_board.copy()
+        transposed_board = transposed_board.T
+        board = self.left_move(transposed_board)
+        print(f"IF MOVED UP!:\n{board.T}")
+        up_board = board.T
+        #down
+        deformed_board = init_board.copy()
+        deformed_board = deformed_board.T[:,::-1]
+        board = self.left_move(deformed_board)
+        print(f"IF MOVED DOWN!:\n{board.T[::-1,:]}")
+        down_board = board.T[::-1,:]
+
+        boards_unchanged_check = (np.array_equal(init_board, left_board) and np.array_equal(init_board, right_board) and np.array_equal(init_board, up_board) and np.array_equal(init_board, down_board))
+        if boards_unchanged_check:
+            print("=============================\n=============================\n\n\n\n\n\n\n\n\n         GAME OVER!         \n\n\n\n\n\n\n\n\n=============================\n=============================")
+            
+
+        
 
     def add_new_tile(self):
         free_tiles = self.get_free_tiles()
         if not free_tiles:
-            print("Game over")
+            self.check_for_the_end()
             return
-
-        # Choose a random free position
-        r, c = random.choice(free_tiles)
+        r,c = random.choice(free_tiles)
         
-        # 90% chance of '2', 10% chance of '4'
+        # 90% chance for '2', 10% chance for '4'
         new_value = 2 if random.random() < 0.9 else 4
-        
-        # Update the mirror grid
         self.mirror_grid[r, c] = new_value
-        print(f"Added new tile {new_value} at ({r}, {c})")
-        
+        print(f"new grid:\n{self.mirror_grid}")
         self.update_ui()
 
 
@@ -215,22 +217,16 @@ class Game():
                     fg=color_fg,
                     text=str(value) if value != 0 else ''
                 )
+        free_tiles = self.get_free_tiles()
+        if not free_tiles:
+            self.check_for_the_end()
+            
+            return
 
-    def game(self):
-        # --- FIX: REMOVED THE WHILE LOOP ---
-        # The game is now event-driven. Logic runs in __init__ and handle_event.
-        print("Game loop placeholder. Tkinter mainloop handles events now.")
-        pass
 
-# --- Tkinter execution block ---
 if __name__ == "__main__":
-    # Initialize numpy array to zeros for easier handling
-    np.set_printoptions(formatter={'int': '{:4}'.format}) 
-    
     root = tk.Tk()
-    # Make window non-resizable
     root.resizable(False, False) 
     
     app = Game(root)
-    # This line starts the main event loop, which listens for clicks, key presses, etc.
     root.mainloop()
