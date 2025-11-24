@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import numpy as np
 import random
+import copy
 
 W0 = 400
 ITEM_IN_ROW = 4
@@ -56,47 +57,71 @@ class Game():
         self.add_new_tile()
         self.add_new_tile()
         self.update_ui()
+    
 
+    def left_move(self,board):
+        if not isinstance(board, np.ndarray):
+            board = np.array(board)
+        board_copy = board.copy()
+        # print("MOVING LEFT\n")
+        
+        for i in range(4):
+            row = board_copy[i]
+            non_zero = [x for x in row if x != 0]
+            merged = []
+            j = 0
+            while j < len(non_zero):
+                if j + 1 < len(non_zero) and non_zero[j] == non_zero[j + 1]:
+                    merged.append(non_zero[j] * 2)
+                    #skip next if merged
+                    j += 2 
+                else:
+                    merged.append(non_zero[j])
+                    j += 1
+            
+            merged.extend([0] * (4 - len(merged)))
+            board_copy[i] = merged
+        
+        # print("\nFinal board:")
+        # print(board_copy)
+        return board_copy
 
     def handle_event(self, event):
         key_symbol = event.keysym
         
         if key_symbol in ['Left', 'Right', 'Up', 'Down']:
-            print(f"{key_symbol} pressed. Move logic goes here.")
-            if key_symbol == 'Left':
-                grid_mir_left = self.mirror_grid
-                print("MOVING LEFT\n")
-                print(grid_mir_left,"\n")
-
-                for i in range(ITEM_IN_ROW):
-
-                    print(f"checking validity of {i}th row")
-
-                    print(grid_mir_left[i])
-                    row = grid_mir_left[i]
-
-                    for double_check in range(3):
-
-                        print(f"Checking{double_check}")
-
-                        for j in range(1,ITEM_IN_ROW):
-
-                            if row[j-1] == row[j]:
-                                grid_mir_left[i][j-1] = row[j]*2
-                                print("grid_mir_left[i][j::]",grid_mir_left[i][j::])
-                                print("rowleft",np.append(row[j+1:ITEM_IN_ROW],5))
-                                grid_mir_left[i][j::] = np.append(row[j+1::],0)
-
-                            elif row[j-1] == 0:
-                                grid_mir_left[i][j-1::] = np.append(row[j::],0)
-                                
-                        print("corrected->",row)
-                print(grid_mir_left)
-                    
-
-
-
             
+            print(f"{key_symbol} pressed. Move logic goes here.")
+
+            if key_symbol == 'Left':
+                board = self.left_move(self.mirror_grid)
+                self.mirror_grid = board
+
+            elif key_symbol == 'Right':
+                print("MOVING RIGHT")
+                reversed_board = self.mirror_grid.copy()
+                reversed_board = reversed_board[:,::-1]
+                board = self.left_move(reversed_board)
+                print(f"MOVED RIGHT!:\n{board[:,::-1]}")
+                self.mirror_grid = board[:,::-1]
+
+            elif key_symbol == 'Up':
+                print("MOVING UP")
+                transposed_board = self.mirror_grid.copy()
+                transposed_board = transposed_board.T
+                board = self.left_move(transposed_board)
+                print(f"MOVED UP!:\n{board.T}")
+                self.mirror_grid = board.T
+
+            elif key_symbol == 'Down':
+                print("MOVING DOWN")
+                deformed_board = self.mirror_grid.copy()
+                deformed_board = deformed_board.T[:,::-1]
+                board = self.left_move(deformed_board)
+                print(f"MOVED DOWN!:\n{board.T[::-1,:]}")
+                self.mirror_grid = board.T[::-1,:]
+            self.add_new_tile()
+
         elif key_symbol == 'Escape':
             self.root.quit()
         else:
