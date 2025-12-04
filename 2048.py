@@ -24,9 +24,11 @@ TILE_COLORS = {
 
 class Game():
     def __init__(self, root):
+        self.score = 0
         self.root = root
         
         self.board = tk.Frame(master=self.root, width=W0, height=W0, bg='#bbada0',padx=5,  pady=5)
+        self.score_display = tk.Frame(master = self.root,width = W0,height = 30)
         
         self.mirror_grid = np.zeros((ITEM_IN_ROW, ITEM_IN_ROW), dtype=int)
         print("Initial Mirror Grid:\n", self.mirror_grid)
@@ -39,9 +41,10 @@ class Game():
         self.root.bind('<Escape>', lambda event: root.quit())
 
         self.board.grid(row=0, column=0)
-        
-        self.setup_init_tiles() 
-        
+        self.score_display.grid(row =1,column = 0)
+        self.label = tk.Label(master=self.score_display,text=self.score,font=('Helvetica', 24, 'bold'), width=4,height=2 )
+        self.label.grid(row =0,column =0)
+        self.setup_init_tiles()
         self.add_new_tile()
         self.add_new_tile()
         self.update_ui()
@@ -60,6 +63,7 @@ class Game():
             j = 0
             while j < len(non_zero):
                 if j + 1 < len(non_zero) and non_zero[j] == non_zero[j + 1]:
+                    self.score += non_zero[j] * 2
                     merged.append(non_zero[j] * 2)
                     #skip next if merged
                     j += 2 
@@ -69,7 +73,7 @@ class Game():
             
             merged.extend([0] * (4 - len(merged)))
             board_copy[i] = merged
-        
+        self.label.config(text = self.score)
         # print("\nFinal board:")
         # print(board_copy)
         return board_copy
@@ -212,11 +216,7 @@ class Game():
 
                 # Update the tile label text and colors
                 label = self.tile_labels[r][c]
-                label.config(
-                    bg=color_bg,
-                    fg=color_fg,
-                    text=str(value) if value != 0 else ''
-                )
+                label.config(bg=color_bg,fg=color_fg,text=str(value) if value != 0 else '')
         free_tiles = self.get_free_tiles()
         if not free_tiles:
             self.check_for_the_end()
