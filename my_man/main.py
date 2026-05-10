@@ -45,14 +45,19 @@ def main():
                     fm.delete(args[0])
                 else:
                     print("Usage: destroy [name]")
-
+            elif command == "clear":
+                if args:
+                    print("Usage: clear")
+                else:
+                    fm.clear_screen()
             elif command == "help":
-                print("Commands: look, go, create, destroy, exit")
+                print("Commands: look, go, create, destroy, exit,clear")
 
             else:
                 print(f"Unknown command: {command}")
 
         except Exception as e:
             print(f"Error: {e}")
+
 if __name__ == "__main__":
     main()

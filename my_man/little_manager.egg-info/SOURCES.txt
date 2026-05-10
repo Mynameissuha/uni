@@ -1,0 +1,11 @@
+README.md
+main.py
+manag.py
+setup.py
+./main.py
+./manag.py
+little_manager.egg-info/PKG-INFO
+little_manager.egg-info/SOURCES.txt
+little_manager.egg-info/dependency_links.txt
+little_manager.egg-info/entry_points.txt
+little_manager.egg-info/top_level.txt

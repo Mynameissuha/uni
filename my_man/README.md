@@ -12,6 +12,7 @@
 
 2. **Установите проект в режиме редактирования:**
     pip install -e .
+    export PYTHONPATH=$PYTHONPATH:.
 
 # Использование
 

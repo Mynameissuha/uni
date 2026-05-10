@@ -1,12 +1,14 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name="filemanager",
+    name="little-manager",
     version="0.1",
-    py_modules=["main", "manager"],
+    packages=find_packages(),
+    py_modules=["main", "manag"],
+    package_dir={"": "."},
     entry_points={
         'console_scripts': [
-            'filemanager = main:main', # Команда = модуль:функция
+            'littlemanager = main:main',
         ],
     },
 )
